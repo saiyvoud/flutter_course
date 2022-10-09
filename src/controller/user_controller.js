@@ -33,17 +33,16 @@ export const login = async (req, res) => {
     const _password = req.body.password;
     con.query(SELECT_PHONE, [values], async function (err, result) {
       //  console.log(result[0].password)
-      if (err) return res.json({ msg: "Invaild phone or password " });
-      if (!result) return res.json({ msg: "Invaild phone or password " });
+      if (err) return res.json({ msg: "Invaild phone or password" });
+      if (!result) return res.json({ msg: "Invaild phone or password" });
       const checkpassword = await comparePassword(
         _password,
         result[0].password
       );
-
       if (!checkpassword)
-        return res.json({ msg: "Invaild phone or password " });
+        return res.json({ msg: "Invaild phone or password" });
       const token = generateToken(result);
-      return res.status(200).json({ msg: "login successful",token: token });
+      return res.json({msg: "login successful",token});
     });
   } catch (error) {
     console.log("ຳerror:", +error);
@@ -60,15 +59,15 @@ export const Register = async (req, res) => {
       [uid, req.body.firstName, req.body.lastName, req.body.phone, password],
     ];
     // check phone
-    con.query(SELECT_PHONE, req.body.phone, function (result1) {
-    
+    con.query(SELECT_PHONE, req.body.phone, function (err,result1) {
+     if(err) throw err
       if (result1.length > 0) {
         return res.json({ msg: "phone is already" });
       }
       con.query(REGEISTER, [values], function (err, resData) {
         if (err) throw err;
         const token = generateToken(resData);
-        return res.json({ msg: "register successful:" , token });
+        return res.status(201).json({ msg: "register successful:" , token });
       });
     });
   } catch (error) {
@@ -77,11 +76,13 @@ export const Register = async (req, res) => {
 };
 export const getUserOne=(req,res)=>{
 try {
-  const token = verifyTokens(req.headers['token']);
-  con.query(FINDONE, [token.data.id],function(err,result){
-    
+  const token = verifyTokens(req.headers["token"]);
+
+  con.query(FINDONE, [token.data[0].id],function(err,result){
+    if(err) throw err 
+    return res.status(200).json(result)
   })
 } catch (error) {
-  
+  console.log("error",error);
 }
 }
