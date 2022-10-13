@@ -1,4 +1,4 @@
-import jwt from "jsonwebtoken";
+
 import dotenv from "dotenv";
 import con from "../middleware/db.js";
 import { CREATE, FINDONE, LOGIN, REGEISTER,SELECT_PHONE } from "../model/user.js";
@@ -9,10 +9,7 @@ import {
   verifyTokens,
 } from "../middleware/auth.js";
 import { v4 as uuidv4 } from "uuid";
-import { _Response } from "../middleware/respone.js";
-import { _Code, _Status } from "../middleware/status.js";
-import { fail, success } from "../middleware/message.js";
-import ValidCreateUser from "../validator/user.js";
+
 dotenv.config();
 const uid = uuidv4();
 
@@ -29,14 +26,19 @@ export const creatTableUser = () => {
 
 export const login = async (req, res) => {
   try {
-    const values = req.body.phone;
-    const _password = req.body.password;
-    con.query(SELECT_PHONE, [values], async function (err, result) {
-      //  console.log(result[0].password)
+    let {phone,password}= req.body;
+    
+    if(!phone){
+      return res.status(400).json({msg:"phone is require"})
+    } 
+    if(!password){
+      return res.status(400).json({msg:"password is require"})
+    }
+    con.query(LOGIN, [phone], async function (err, result) {
       if (err) return res.json({ msg: "Invaild phone or password" });
       if (!result) return res.json({ msg: "Invaild phone or password" });
       const checkpassword = await comparePassword(
-        _password,
+        password,
         result[0].password
       );
       if (!checkpassword)
@@ -51,10 +53,20 @@ export const login = async (req, res) => {
 // =====> Register <========
 export const Register = async (req, res) => {
   try {
-    const { errors, isValid } = ValidCreateUser(req.body);
-    if (!isValid) return res.json({ msg: errors });
-    const password = await genPassword(req.body.password);
-
+   let {firstName,lastName,phone,_password} = req.body;
+   if(!firstName){
+    return res.status(400).json({firstName: "firstName is require"})
+   }
+   if(!lastName){
+    return res.status(400).json({lastName: "lastName is require"})
+   }
+   if(!phone){
+    return res.status(400).json({phone: "phone is require"})
+   }
+   if(!_password){
+    return res.status(400).json({password: "password is require"})
+   }
+    const password = await genPassword(req.body._password);
     const values = [
       [uid, req.body.firstName, req.body.lastName, req.body.phone, password],
     ];

@@ -1,5 +1,5 @@
 import  jwt  from "jsonwebtoken";
-import {_Response} from './respone.js'
+
 import dotenv from 'dotenv'
 import con from './db.js'
 import  bcrypt from 'bcryptjs'

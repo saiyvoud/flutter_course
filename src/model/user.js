@@ -10,4 +10,4 @@ export const REGEISTER = 'insert into user (id,firstName,lastName,phone,password
 export const FINDONE = `select * from user where id=?`;
 export const SELECT_PHONE = 'select * from user where phone=?';
 export const SELECT_TOKEN = 'select * from user where id=?';
-export const LOGIN = 'select * from user where phone = ? And password = ? ';
+export const LOGIN = `select * from user where phone = ? `;
