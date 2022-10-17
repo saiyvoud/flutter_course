@@ -1,6 +1,7 @@
 export const CREATE = `CREATE TABLE product( 
       id INT AUTO_INCREMENT PRIMARY KEY, 
-    name VARCHAR(30), 
+    name VARCHAR(30),
+    description varchar(150) 
     price varchar(10),
     image varchar(100)
     )`;
