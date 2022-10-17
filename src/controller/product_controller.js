@@ -10,11 +10,11 @@ import {
 } from "../model/product.js";
 import UploadImage from "../middleware/cloudinary.js";
 
-export const CreateProduct = () => {
+export const CreateProduct = (req,res) => {
   try {
     con.query(CREATE, function (err, row) {
       if (err) throw err;
-      return res.json({ msg: "Table created" });
+      return res.json({ msg: "Table product created" });
     });
   } catch (error) {
     console.log("ຳerror:", +error);
@@ -22,10 +22,11 @@ export const CreateProduct = () => {
 };
 export const GetProduct = (req, res) => {
   try {
-    con.query(SELECT, function (err, result, fields) {
+    con.query(SELECT, function (err, data, fields) {
       if (err) throw err;
       // console.log(result)
-      return res.json({ msg: "get product sucessful", result });
+
+      return res.json({ msg: "get product sucessful", data });
     });
   } catch (error) {
     console.log("ຳerror:", +error);
@@ -53,7 +54,7 @@ export const InsertProduct = async (req, res) => {
     ];
     con.query(INSERT, [values], function (err, result) {
       if (err) throw err;
-      return res.json({ msg: "insert product successful" });
+      return res.status(200).json({ msg: "insert product successful" });
     });
   } catch (error) {
     console.log("ຳerror:", +error);
@@ -80,10 +81,10 @@ export const UpdateProduct = (req, res) => {
     }
     con.query(UPDATE, [name,description,price,image,id], function (err, result) {
       if (err) throw err;
-      return res.json({ msg: "update product successful" });
+      return res.status(201).json({ msg: "update product successful" });
     });
   } catch (error) {
-    console.log("error:", +error);
+    console.log("error:", error);
   }
 };
 export const DeleteProduct = (req, res) => {

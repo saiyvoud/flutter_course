@@ -1,7 +1,8 @@
 
 import dotenv from "dotenv";
 import con from "../middleware/db.js";
-import { CREATE, FINDONE, LOGIN, REGEISTER,SELECT_PHONE } from "../model/user.js";
+import UploadImage from "../middleware/cloudinary.js";
+import { CREATE, FINDONE, LOGIN, REGEISTER,SELECT_PHONE, UPDATE_USER } from "../model/user.js";
 import {
   genPassword,
   generateToken,
@@ -13,11 +14,11 @@ import { v4 as uuidv4 } from "uuid";
 dotenv.config();
 const uid = uuidv4();
 
-export const creatTableUser = () => {
+export const creatTableUser = (req,res) => {
   try {
     con.query(CREATE, function (err, row) {
       if (err) throw err;
-      return console.log("Table User created");
+      return res.json({msg:"Table User created"});
     });
   } catch (error) {
     console.log("ຳerror:", +error);
@@ -37,6 +38,7 @@ export const login = async (req, res) => {
     con.query(LOGIN, [phone], async function (err, result) {
       if (err) return res.json({ msg: "Invaild phone or password" });
       if (!result) return res.json({ msg: "Invaild phone or password" });
+      
       const checkpassword = await comparePassword(
         password,
         result[0].password
@@ -53,7 +55,7 @@ export const login = async (req, res) => {
 // =====> Register <========
 export const Register = async (req, res) => {
   try {
-   let {firstName,lastName,phone,_password} = req.body;
+   let {firstName,lastName,phone,password} = req.body;
    if(!firstName){
     return res.status(400).json({firstName: "firstName is require"})
    }
@@ -63,12 +65,12 @@ export const Register = async (req, res) => {
    if(!phone){
     return res.status(400).json({phone: "phone is require"})
    }
-   if(!_password){
+   if(!password){
     return res.status(400).json({password: "password is require"})
    }
-    const password = await genPassword(req.body._password);
+    const genpassword = await genPassword(password);
     const values = [
-      [uid, req.body.firstName, req.body.lastName, req.body.phone, password],
+      [ firstName, lastName, phone, genpassword],
     ];
     // check phone
     con.query(SELECT_PHONE, req.body.phone, function (err,result1) {
@@ -79,22 +81,47 @@ export const Register = async (req, res) => {
       con.query(REGEISTER, [values], function (err, resData) {
         if (err) throw err;
         const token = generateToken(resData);
-        return res.status(201).json({ msg: "register successful:" , token });
+        return res.json({ msg: "register successful:" , token });
       });
     });
   } catch (error) {
     console.log("ຳerror:", error);
   }
 };
+
 export const getUserOne=(req,res)=>{
 try {
   const token = verifyTokens(req.headers["token"]);
 
-  con.query(FINDONE, [token.data[0].id],function(err,result){
+  con.query(FINDONE, token.data[0].id,function(err,result){
     if(err) throw err 
-    return res.status(200).json(result)
+    return res.status(200).json(result[0])
   })
 } catch (error) {
   console.log("error",error);
 }
+}
+export const updateProfile= async(req,res)=>{
+  try {
+    let {id,firstName,lastName,profile} = req.body;
+      if(!id){
+        return res.status(400).json({ id: "id is require" });
+      }
+      if (!firstName) {
+        return res.status(400).json({ firstName: "firstName is require" });
+      }
+      if (!lastName) {
+        return res.status(400).json({ lastName: "lastName is require" });
+      }
+      if (!profile) {
+        return res.status(400).json({ profile: "profile is require" });
+      }
+      const image = await UploadImage(profile);
+      con.query(UPDATE_USER, [firstName,lastName,image,id], function (err, result) {
+        if (err) throw err;
+        return res.status(201).json({ msg: "update profile successful" });
+      });
+    } catch (error) {
+      console.log("error:", error);
+    }
 }

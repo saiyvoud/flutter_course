@@ -10,8 +10,6 @@ cloudinary.config({
 
 const UploadImage = async (img, oldImg) => {
   try {
-
-
     if (!img) return "";
     
     if (oldImg) {
@@ -19,7 +17,6 @@ const UploadImage = async (img, oldImg) => {
       const img_id = spliturl[spliturl.length - 1].split(".")[0];
       await cloudinary.uploader.destroy(img_id);
     }
-
     const res_upload = await cloudinary.uploader.upload(img, null, {
       public_id: `${Date.now()}`,
       resource_type: "auto",
