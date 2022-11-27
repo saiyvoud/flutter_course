@@ -16,7 +16,7 @@ const uid = uuidv4();
 
 export const creatTableUser = (req,res) => {
   try {
-    con.query(CREATE, function (err, row) {
+    con.query(CREATE, function (err, result) {
       if (err) throw err;
       return res.json({msg:"Table User created"});
     });
@@ -28,23 +28,25 @@ export const creatTableUser = (req,res) => {
 export const login = async (req, res) => {
   try {
     let {phone,password}= req.body;
-    
     if(!phone){
       return res.status(400).json({msg:"phone is require"})
     } 
     if(!password){
       return res.status(400).json({msg:"password is require"})
     }
-    con.query(LOGIN, [phone], async function (err, result) {
-      if (err) return res.json({ msg: "Invaild phone or password" });
-      if (!result) return res.json({ msg: "Invaild phone or password" });
-      
+    con.query(LOGIN, phone, async  (err, result)=> {
+      if (err) return res.json({ msg: "Invaild phone or password5" });
+      if (result.length === 0){
+        return res.json({ msg: "Invaild phone or password6" });
+      }  
       const checkpassword = await comparePassword(
         password,
         result[0].password
       );
-      if (!checkpassword)
-        return res.json({ msg: "Invaild phone or password" });
+      if (!checkpassword){
+        return res.json({ msg: "Invaild phone or password7" });
+      }
+        
       const token = generateToken(result);
       return res.json({msg: "login successful",token});
     });
@@ -72,8 +74,9 @@ export const Register = async (req, res) => {
     const values = [
       [ firstName, lastName, phone, genpassword],
     ];
+    
     // check phone
-    con.query(SELECT_PHONE, req.body.phone, function (err,result1) {
+    con.query(SELECT_PHONE, phone, function (err,result1) {
      if(err) throw err
       if (result1.length > 0) {
         return res.json({ msg: "phone is already" });

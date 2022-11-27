@@ -12,8 +12,9 @@ import UploadImage from "../middleware/cloudinary.js";
 
 export const CreateProduct = (req,res) => {
   try {
-    con.query(CREATE, function (err, row) {
+    con.query(CREATE, function (err, result) {
       if (err) throw err;
+     
       return res.json({ msg: "Table product created" });
     });
   } catch (error) {

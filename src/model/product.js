@@ -1,5 +1,5 @@
 export const CREATE = `CREATE TABLE product( 
-      id INT AUTO_INCREMENT PRIMARY KEY, 
+    id INT AUTO_INCREMENT PRIMARY KEY, 
     name VARCHAR(30),
     description varchar(150),
     price varchar(10),
@@ -7,7 +7,7 @@ export const CREATE = `CREATE TABLE product(
     )`;
 
 export const INSERT =
-  `INSERT INTO product (name,description,price,image) VALUES ?`;
+  `INSERT INTO product (name,description,price,image) VALUE ?`;
 
 export const UPDATE =
  "UPDATE  product SET `name` = ?,`description` = ?, `price` = ?, `image` = ? where id = ?" ;
